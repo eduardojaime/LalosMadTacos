@@ -1,0 +1,15 @@
+﻿@model List<Category>
+<h1>Welcome to my store</h1>
+
+<div class="container-fluid">
+    <div class="row card-group">
+        @foreach (var category in Model)
+        {
+            <div class="col-sm-6 col-lg-4 mb-3">
+                <div class="card mb-6 text-center h-100">
+                    <div class="card-body">@category.Name <p>@category.Description</p></div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

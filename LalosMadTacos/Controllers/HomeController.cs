@@ -25,7 +25,13 @@ namespace LalosMadTacos.Controllers
 
         public IActionResult Privacy()
         {
-            return View();
+             // Simulating going to the DB and getting data
+            List<string> list = new List<string>();
+            list.Add("Some privacy policy");
+            list.Add("Another policy");
+            list.Add("Even more! privacy policy");
+
+            return View(list);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
