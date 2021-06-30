@@ -13,7 +13,8 @@ namespace LalosMadTacos.Controllers
         private readonly ApplicationDbContext _dbContext;
 
         // Using DI to get the configuration object from the app and the AppDbContext
-        public StoreController(ApplicationDbContext dbContext) {
+        public StoreController(ApplicationDbContext dbContext)
+        {
             _dbContext = dbContext;
         }
 

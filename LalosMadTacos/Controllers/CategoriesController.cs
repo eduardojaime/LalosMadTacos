@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LalosMadTacos.Data;
 using LalosMadTacos.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LalosMadTacos.Controllers
 {
+    [Authorize(Roles = "Administrator")]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;

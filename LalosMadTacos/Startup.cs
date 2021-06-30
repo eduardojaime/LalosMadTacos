@@ -1,4 +1,5 @@
 using LalosMadTacos.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -34,9 +35,21 @@ namespace LalosMadTacos
 
 
             services.AddDatabaseDeveloperPageExceptionFilter();
+            // Configure Identity Provider
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                    .AddRoles<IdentityRole>()
+                    .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            //services
+            //    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            //    .AddCookie(
+            //        options =>
+            //        {
+            //            options.Cookie.Name = "LalosMadTacos";
+            //            options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+            //            options.SlidingExpiration = true;
+            //        }
+            //    );
 
             services.AddControllersWithViews();
         }
