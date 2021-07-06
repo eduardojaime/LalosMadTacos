@@ -1,5 +1,4 @@
 ﻿using LalosMadTacos.Data;
-using LalosMadTacos.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -23,15 +22,5 @@ namespace LalosMadTacos.Controllers
         {
             return View(_dbContext.Categories.OrderBy(c => c.Name).ToList());
         }
-
-        public IActionResult Items(int id)
-        {
-            var menuItems = _dbContext.MenuItems
-                            .Where(i => i.CategoryId == id)
-                            .OrderBy(i => i.Name)
-                            .ToList<MenuItem>();
-            return View(menuItems);
-        }
-
     }
 }

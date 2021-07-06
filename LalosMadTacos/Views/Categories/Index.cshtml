@@ -22,42 +22,20 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
-                </td>
-            </tr>
-        }
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.CategoryId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.CategoryId">Delete</a>
+            </td>
+        </tr>
+}
     </tbody>
 </table>
-
-<style>
-    .col4 {
-        height: 400px;
-        border: 1px solid black;
-    }
-</style>
-
-<div class="container">
-    <div class="row">
-        <div class="col-4 col4">A</div>
-        <div class="col-4 col4">B</div>
-        <div class="col-4 col4">C</div>
-    </div>
-    <div class="row">
-        <div class="col-4 col4">A</div>
-        <div class="col-4 col4">B</div>
-        <div class="col-4 col4">C</div>
-    </div>
-</div>
-
