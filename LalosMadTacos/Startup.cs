@@ -33,23 +33,14 @@ namespace LalosMadTacos
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
+            var connectionStr = Configuration["ConnectionStrings:DefaultConnection"];
+
 
             services.AddDatabaseDeveloperPageExceptionFilter();
             // Configure Identity Provider
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                     .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<ApplicationDbContext>();
-
-            //services
-            //    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            //    .AddCookie(
-            //        options =>
-            //        {
-            //            options.Cookie.Name = "LalosMadTacos";
-            //            options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-            //            options.SlidingExpiration = true;
-            //        }
-            //    );
 
             services.AddControllersWithViews();
         }
