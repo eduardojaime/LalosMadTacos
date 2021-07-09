@@ -19,6 +19,7 @@ namespace LalosMadTacos.Controllers
             _dbContext = dbContext;
         }
 
+        // this one can return anything
         public IActionResult Index()
         {
             return View(_dbContext.Categories.OrderBy(c => c.Name).ToList());

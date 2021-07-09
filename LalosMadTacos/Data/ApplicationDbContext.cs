@@ -14,6 +14,8 @@ namespace LalosMadTacos.Data
         // Define tables (dbsets)
         public DbSet<Category> Categories { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
+        // M to M between items and carts
+        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

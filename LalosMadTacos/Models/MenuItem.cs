@@ -26,6 +26,8 @@ namespace LalosMadTacos.Models
         // Trick > for easier access of data
         public Category Category { get; set; }
 
-        public string Image { get; set; } // /images/taco.png
+        public string ImageUrl { get; set; }
+
+        public List<ShoppingCart> ShoppingCarts { get; set; }
     }
 }

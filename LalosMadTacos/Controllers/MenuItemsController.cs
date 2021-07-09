@@ -14,6 +14,7 @@ namespace LalosMadTacos.Controllers
     [Authorize(Roles = "Administrator")]
     public class MenuItemsController : Controller
     {
+        private const string DEFAULT_IMAGE_URL = "/Images/taco-155812_640.png";
         private readonly ApplicationDbContext _context;
 
         public MenuItemsController(ApplicationDbContext context)
@@ -59,10 +60,13 @@ namespace LalosMadTacos.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("MenuItemId,Name,Price,Description,CategoryId")] MenuItem menuItem)
+        public async Task<IActionResult> Create([Bind("MenuItemId,Name,Price,Description,CategoryId,ImageUrl")] MenuItem menuItem)
         {
             if (ModelState.IsValid)
             {
+                if (String.IsNullOrEmpty(menuItem.ImageUrl))
+                    menuItem.ImageUrl = DEFAULT_IMAGE_URL;
+
                 _context.Add(menuItem);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -93,7 +97,7 @@ namespace LalosMadTacos.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("MenuItemId,Name,Price,Description,CategoryId")] MenuItem menuItem)
+        public async Task<IActionResult> Edit(int id, [Bind("MenuItemId,Name,Price,Description,CategoryId,ImageUrl")] MenuItem menuItem)
         {
             if (id != menuItem.MenuItemId)
             {
@@ -104,6 +108,8 @@ namespace LalosMadTacos.Controllers
             {
                 try
                 {
+                    if (String.IsNullOrEmpty(menuItem.ImageUrl))
+                        menuItem.ImageUrl = DEFAULT_IMAGE_URL;
                     _context.Update(menuItem);
                     await _context.SaveChangesAsync();
                 }

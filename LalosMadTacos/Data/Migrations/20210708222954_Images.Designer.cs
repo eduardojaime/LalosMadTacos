@@ -4,14 +4,16 @@ using LalosMadTacos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LalosMadTacos.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210708222954_Images")]
+    partial class Images
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,45 +70,6 @@ namespace LalosMadTacos.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("MenuItems");
-                });
-
-            modelBuilder.Entity("LalosMadTacos.Models.ShoppingCart", b =>
-                {
-                    b.Property<int>("ShoppingCartId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AspNetUserId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("Purchased")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ShoppingCartId");
-
-                    b.ToTable("ShoppingCarts");
-                });
-
-            modelBuilder.Entity("MenuItemShoppingCart", b =>
-                {
-                    b.Property<int>("ItemsMenuItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShoppingCartsShoppingCartId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ItemsMenuItemId", "ShoppingCartsShoppingCartId");
-
-                    b.HasIndex("ShoppingCartsShoppingCartId");
-
-                    b.ToTable("MenuItemShoppingCart");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -318,21 +281,6 @@ namespace LalosMadTacos.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("MenuItemShoppingCart", b =>
-                {
-                    b.HasOne("LalosMadTacos.Models.MenuItem", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsMenuItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LalosMadTacos.Models.ShoppingCart", null)
-                        .WithMany()
-                        .HasForeignKey("ShoppingCartsShoppingCartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
