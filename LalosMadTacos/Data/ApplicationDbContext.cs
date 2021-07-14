@@ -21,5 +21,14 @@ namespace LalosMadTacos.Data
             : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<ShoppingCart>()
+                   .HasMany(s => s.Items)
+                   .WithMany(i => i.ShoppingCarts);
+        }
     }
 }

@@ -42,6 +42,8 @@ namespace LalosMadTacos
                     .AddRoles<IdentityRole>()
                     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddSession();
+
             services.AddControllersWithViews();
         }
 
@@ -66,6 +68,8 @@ namespace LalosMadTacos
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
