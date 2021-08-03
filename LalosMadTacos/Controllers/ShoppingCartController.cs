@@ -30,6 +30,8 @@ namespace LalosMadTacos.Controllers
             // for now just get id == 100
             ShoppingCart shoppingCart = _context.ShoppingCarts
                                         .Where(s => s.CustomerId == CustomerId)
+                                        .Include(s => s.MenuItemShoppingCarts)
+                                        .ThenInclude(misc => misc.MenuItem)
                                         .FirstOrDefault();
             if (shoppingCart == null)
             {
