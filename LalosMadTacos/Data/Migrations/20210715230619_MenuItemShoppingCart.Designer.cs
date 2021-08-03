@@ -4,19 +4,21 @@ using LalosMadTacos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LalosMadTacos.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210715230619_MenuItemShoppingCart")]
+    partial class MenuItemShoppingCart
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.8")
+                .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("LalosMadTacos.Models.Category", b =>
@@ -70,21 +72,6 @@ namespace LalosMadTacos.Data.Migrations
                     b.ToTable("MenuItems");
                 });
 
-            modelBuilder.Entity("LalosMadTacos.Models.MenuItemShoppingCart", b =>
-                {
-                    b.Property<int>("ShoppingCartId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MenuItemId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ShoppingCartId", "MenuItemId");
-
-                    b.HasIndex("MenuItemId");
-
-                    b.ToTable("MenuItemShoppingCart");
-                });
-
             modelBuilder.Entity("LalosMadTacos.Models.ShoppingCart", b =>
                 {
                     b.Property<int>("ShoppingCartId")
@@ -107,6 +94,21 @@ namespace LalosMadTacos.Data.Migrations
                     b.HasKey("ShoppingCartId");
 
                     b.ToTable("ShoppingCarts");
+                });
+
+            modelBuilder.Entity("MenuItemShoppingCart", b =>
+                {
+                    b.Property<int>("ItemsMenuItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShoppingCartsShoppingCartId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ItemsMenuItemId", "ShoppingCartsShoppingCartId");
+
+                    b.HasIndex("ShoppingCartsShoppingCartId");
+
+                    b.ToTable("MenuItemShoppingCart");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -320,23 +322,19 @@ namespace LalosMadTacos.Data.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("LalosMadTacos.Models.MenuItemShoppingCart", b =>
+            modelBuilder.Entity("MenuItemShoppingCart", b =>
                 {
-                    b.HasOne("LalosMadTacos.Models.MenuItem", "MenuItem")
-                        .WithMany("MenuItemShoppingCarts")
-                        .HasForeignKey("MenuItemId")
+                    b.HasOne("LalosMadTacos.Models.MenuItem", null)
+                        .WithMany()
+                        .HasForeignKey("ItemsMenuItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LalosMadTacos.Models.ShoppingCart", "ShoppingCart")
-                        .WithMany("MenuItemShoppingCarts")
-                        .HasForeignKey("ShoppingCartId")
+                    b.HasOne("LalosMadTacos.Models.ShoppingCart", null)
+                        .WithMany()
+                        .HasForeignKey("ShoppingCartsShoppingCartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("MenuItem");
-
-                    b.Navigation("ShoppingCart");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -388,16 +386,6 @@ namespace LalosMadTacos.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("LalosMadTacos.Models.MenuItem", b =>
-                {
-                    b.Navigation("MenuItemShoppingCarts");
-                });
-
-            modelBuilder.Entity("LalosMadTacos.Models.ShoppingCart", b =>
-                {
-                    b.Navigation("MenuItemShoppingCarts");
                 });
 #pragma warning restore 612, 618
         }

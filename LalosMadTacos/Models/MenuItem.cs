@@ -28,6 +28,6 @@ namespace LalosMadTacos.Models
 
         public string ImageUrl { get; set; }
 
-        public List<ShoppingCart> ShoppingCarts { get; set; }
+        public IList<MenuItemShoppingCart> MenuItemShoppingCarts { get; set; }
     }
 }

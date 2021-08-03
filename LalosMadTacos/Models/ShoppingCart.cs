@@ -11,7 +11,7 @@ namespace LalosMadTacos.Models
         public DateTime Created { get; set; }
         public DateTime Purchased { get; set; }
         public bool IsActive { get; set; }
-        public List<MenuItem> Items { get; set; }
+        public IList<MenuItemShoppingCart> MenuItemShoppingCarts { get; set; }
         // Use this field to identify the customer > anonymous and authenticated users
         public string CustomerId { get; set; }
     }

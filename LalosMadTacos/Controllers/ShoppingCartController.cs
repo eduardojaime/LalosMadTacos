@@ -37,7 +37,7 @@ namespace LalosMadTacos.Controllers
                 shoppingCart.CustomerId = CustomerId;
                 shoppingCart.Created = DateTime.UtcNow;
                 shoppingCart.IsActive = true;
-                shoppingCart.Items = new List<MenuItem>();
+                shoppingCart.MenuItemShoppingCarts = new List<MenuItemShoppingCart>();
 
                 _context.ShoppingCarts.Add(shoppingCart);
                 _context.SaveChanges();
@@ -65,19 +65,24 @@ namespace LalosMadTacos.Controllers
                 shoppingCart.CustomerId = CustomerId;
                 shoppingCart.Created = DateTime.UtcNow;
                 shoppingCart.IsActive = true;
-                shoppingCart.Items = new List<MenuItem>();
+                shoppingCart.MenuItemShoppingCarts = new List<MenuItemShoppingCart>();
+
+                // Add to cart
+                if (item != null)
+                    shoppingCart.MenuItemShoppingCarts.Add(new MenuItemShoppingCart { MenuItemId = 1, ShoppingCartId = shoppingCart.ShoppingCartId });
 
                 _context.ShoppingCarts.Add(shoppingCart);
-                _context.SaveChanges();
             }
-
-            // Add to cart
-            if (item != null)
+            else
             {
-                shoppingCart.Items.Add(item);
-            }
+                if (shoppingCart.MenuItemShoppingCarts == null)
+                    shoppingCart.MenuItemShoppingCarts = new List<MenuItemShoppingCart>();
 
-            // Save changes
+                if (item != null)
+                    shoppingCart.MenuItemShoppingCarts.Add(new MenuItemShoppingCart { MenuItemId = 1, ShoppingCartId = shoppingCart.ShoppingCartId });
+
+                _context.ShoppingCarts.Update(shoppingCart);
+            }
             _context.SaveChanges();
 
             return Redirect("/ShoppingCart");

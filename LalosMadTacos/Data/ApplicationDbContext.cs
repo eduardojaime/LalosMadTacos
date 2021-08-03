@@ -26,9 +26,18 @@ namespace LalosMadTacos.Data
         {
             base.OnModelCreating(builder);
 
-            builder.Entity<ShoppingCart>()
-                   .HasMany(s => s.Items)
-                   .WithMany(i => i.ShoppingCarts);
+            builder.Entity<MenuItemShoppingCart>()
+                .HasKey(x => new { x.ShoppingCartId, x.MenuItemId });
+
+            builder.Entity<MenuItemShoppingCart>()
+                .HasOne<MenuItem>(ms => ms.MenuItem)
+                .WithMany(m => m.MenuItemShoppingCarts)
+                .HasForeignKey(ms => ms.MenuItemId);
+
+            builder.Entity<MenuItemShoppingCart>()
+                .HasOne<ShoppingCart>(ms => ms.ShoppingCart)
+                .WithMany(s => s.MenuItemShoppingCarts)
+                .HasForeignKey(ms => ms.ShoppingCartId);
         }
     }
 }
