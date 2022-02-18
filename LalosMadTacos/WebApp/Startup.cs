@@ -34,7 +34,8 @@ namespace WebApp
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Configuring my identity provider for credentials (usernames/password)
-            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddRoles<IdentityRole>() // Enable the use of roles with my identity provider
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
         }

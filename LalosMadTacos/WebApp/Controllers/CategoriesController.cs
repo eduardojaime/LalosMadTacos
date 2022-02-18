@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+// Add authorization namespace to enable [Authorize]
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,9 @@ using WebApp.Models;
 
 namespace WebApp.Controllers
 {
+    // Protects the entire controller and all actions
+    // More granular access rule: allow only users with the Admin role
+    [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;

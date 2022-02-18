@@ -7,9 +7,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
 using WebApp.Models;
+// Add authorization namespace to enable [Authorize]
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApp.Controllers
 {
+    // Protects the entire controller and all actions
+    // More granular access rule: allow only users with the Admin role
+    [Authorize(Roles = "Admin")]
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,10 +27,23 @@ namespace WebApp.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Products.ToListAsync());
+            // Lazy Loading 
+            // By default, only the products are loaded in memory
+            // var productList = _context.Products; is equivalent to SQL SELECT * FROM Products
+            // Access the category field in product
+            // 'linked' objects are not loaded by default
+            // so we need to 'include' them
+            var productList = _context.Products.Include(p => p.Category).OrderBy(p => p.Name);
+            // SQL equivalent of doing SELECT * FROM Products p LEFT JOIN Category c ON p.CategoryId == c.CategoryId
+            return View(await productList.ToListAsync());
+
+            // Eager Loading
+            // Loads everything by default
         }
 
         // GET: Products/Details/5
+        // Allows anonymous access
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -69,6 +87,8 @@ namespace WebApp.Controllers
         }
 
         // GET: Products/Edit/5
+        // Protects only this action
+        // [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
