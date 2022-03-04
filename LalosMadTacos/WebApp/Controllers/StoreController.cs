@@ -2,6 +2,8 @@
 using WebApp.Data;
 using WebApp.Models;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApp.Controllers
 {
@@ -46,5 +48,68 @@ namespace WebApp.Controllers
         {
             return View(); // return /views/store/details.cshtml
         }
+
+        // Handle GET /Store/Cart > show a list of items in our cart
+        [Authorize]
+        public IActionResult Cart()
+        {
+            string customerId = User.Identity.Name; // username = email address
+
+            // query list of products in cart using LINQ
+            var cart = _context.Carts
+                        .Include(c => c.Product)
+                        .Where(c => c.CustomerId == customerId)
+                        .ToList();
+
+            // calculate total and pass as viewbag field
+            // use sum aggregation function to sum all prices in the list
+            var total = cart.Sum(c => c.Price);
+            ViewBag.TotalAmount = total.ToString("C");
+
+            return View(cart);            
+        }
+
+        // API endpoint to add an item to the cart
+        [Authorize]
+        public IActionResult AddToCart(int ProductId, int Quantity)
+        { 
+            // get product price
+            var price = _context.Products.Find(ProductId).Price;
+
+            // get customerid
+            var customerId = User.Identity.Name;
+
+            // create and save cart object
+            // cart is an item in the shopping cart
+            var cart = new Cart();
+            cart.ProductId = ProductId;
+            cart.Quantity = Quantity;
+            cart.Price = price * Quantity; // price of individual product times quantity
+            cart.DateCreated = System.DateTime.UtcNow; // Always save datetime in utc format
+            cart.CustomerId = customerId;
+
+            _context.Carts.Add(cart);
+            _context.SaveChanges();
+
+            //redirect to cart view
+            return Redirect("Cart");
+            
+        }
+
+        // API endpoint to remove and item from the cart
+
+        [Authorize]
+        public IActionResult RemoveFromCart(int id) {
+            var cartItem = _context.Carts.Where(c => c.Id == id).FirstOrDefault();
+
+            if (cartItem != null)
+            {
+                _context.Carts.Remove(cartItem);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Cart");
+        }
+
     }
 }

@@ -15,6 +15,8 @@ namespace WebApp.Data
 
         public DbSet<Product> Products { get; set; }
 
+        public DbSet<Cart> Carts { get; set; }
+
         // Constructor method > handles custom initialization of my db context class
         // Use this in case you have specific/custom requirements
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
