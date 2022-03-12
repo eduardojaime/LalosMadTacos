@@ -37,6 +37,10 @@ namespace WebApp
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>() // Enable the use of roles with my identity provider
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            // enables HttpContext.Session object
+            services.AddSession();
+
             services.AddControllersWithViews();
         }
 
@@ -65,6 +69,9 @@ namespace WebApp
             app.UseAuthorization();
             // /Management > admin users
             // /Checkout > client users
+
+            // enables HttpContext.Session object
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

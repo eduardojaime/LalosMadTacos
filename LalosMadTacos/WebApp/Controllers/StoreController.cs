@@ -4,6 +4,11 @@ using WebApp.Models;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using WebApp.Extensions;
+using Stripe;
+using Stripe.Checkout;
+using System.Collections.Generic;
 
 namespace WebApp.Controllers
 {
@@ -12,10 +17,12 @@ namespace WebApp.Controllers
     {
         // Configure dependency injection to access the db context object
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public StoreController(ApplicationDbContext context)
+        public StoreController(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         // Handles GET /Store/Index or /Store > Shows a list of categories
@@ -66,13 +73,13 @@ namespace WebApp.Controllers
             var total = cart.Sum(c => c.Price);
             ViewBag.TotalAmount = total.ToString("C");
 
-            return View(cart);            
+            return View(cart);
         }
 
         // API endpoint to add an item to the cart
         [Authorize]
         public IActionResult AddToCart(int ProductId, int Quantity)
-        { 
+        {
             // get product price
             var price = _context.Products.Find(ProductId).Price;
 
@@ -93,13 +100,14 @@ namespace WebApp.Controllers
 
             //redirect to cart view
             return Redirect("Cart");
-            
+
         }
 
         // API endpoint to remove and item from the cart
 
         [Authorize]
-        public IActionResult RemoveFromCart(int id) {
+        public IActionResult RemoveFromCart(int id)
+        {
             var cartItem = _context.Carts.Where(c => c.Id == id).FirstOrDefault();
 
             if (cartItem != null)
@@ -109,6 +117,145 @@ namespace WebApp.Controllers
             }
 
             return RedirectToAction("Cart");
+        }
+
+        // checkout route to handle payment setup for items in the shopping cart
+        [Authorize]
+        public IActionResult Checkout()
+        {
+            // create temp order to pass total
+            var customerId = User.Identity.Name;
+            Models.Order tempOrder = new Models.Order();
+            var cartItems = _context.Carts.Where(c => c.CustomerId == customerId).ToList();
+            tempOrder.Total = cartItems.Sum(c => c.Price);
+
+            return View(tempOrder);
+        }
+
+        // Post Handler > handles when user clicks Submit button on checkout page
+        [Authorize] // only authenticated users can checkout
+        [ValidateAntiForgeryToken] // adds protection so that this action cannot be hijacked
+        [HttpPost] // gets triggered when customer clicks submit button on checkout page
+        public IActionResult Checkout([Bind("DeliveryNotes")] Models.Order order)
+        {
+            // Order gets created in the View            
+            // recalculate total
+            var customerId = User.Identity.Name;
+            var cartItems = _context.Carts.Where(c => c.CustomerId == customerId).ToList();
+            order.Total = cartItems.Sum(c => c.Price);
+            order.OrderDate = System.DateTime.UtcNow; // ALWAYS STORE DATE VALUES IN UTC time
+            order.CustomerId = customerId;
+
+            // save order object in session so we can reuse it later
+            // create SessionsExtension class:
+            // https://www.talkingdotnet.com/store-complex-objects-in-asp-net-core-session/
+            HttpContext.Session.SetObject("Order", order);
+
+            // redirect to payment
+            return RedirectToAction("Payment");
+        }
+
+        // payments route to actually handle payments by calling the stripe API
+        [Authorize]
+        public IActionResult Payment()
+        {
+            // get order object from session store
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+            // calculate total
+            ViewBag.Total = order.Total * 100;
+            // get publishable key from appsettings.json
+            ViewBag.PublishableKey = _configuration["Stripe:PublishableKey"];
+
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult Payment(string stripeToken)
+        {
+            // get order from session store
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+            // Import Stripe and Stripe.Checkout in your program
+            // Fix any reference to Order class, declare it explicitly: Models.Order
+            // get the stripe configuration key
+            StripeConfiguration.ApiKey = _configuration["Stripe:SecretKey"];
+
+            // configure stripe: create payment session
+            // Create Stripe session object >> https://stripe.com/docs/checkout/integration-builder
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string> { "card" },
+                LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long?)(order.Total * 100), // amount in cents
+                            Currency = "cad",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "LalosMadTacos Purchase"
+                            }
+                        },
+                        Quantity =1
+                    }
+                },
+                Mode = "payment",
+                SuccessUrl = $"https://{Request.Host}/Store/SaveOrder",
+                CancelUrl = $"https://{Request.Host}/Store/Cart"
+            };
+
+            // return session id for JavaScript code to use in calling stripe
+            var service = new SessionService(); // A service is... a class that produces something
+
+            // now use the service object to create a session object based on the options
+            // what this does is calls Stripe's API to create a session on their end
+            // we have the ID value which will be used to redirect the user to Stripe
+            // With this ID stripe will load the amount information on their end
+            Session session = service.Create(options);
+
+            // return json response
+            return Json(new { id = session.Id });
+        }
+
+        [Authorize]
+        public IActionResult SaveOrder()
+        {
+            // this is triggered post payment (after user entered CC details on Stripe portal)
+            // retrieve order from session store
+            var order = HttpContext.Session.GetObject<Models.Order>("Order");
+
+            // save order in DB
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+
+            // clear cart
+            var customerId = User.Identity.Name;
+            var cartItems = _context.Carts.Where(c => c.CustomerId == customerId).ToList();
+            // loop through item list and remove them from _context.Carts
+            foreach (var cartItem in cartItems)
+            {
+                // cartItem becomes an orderDetail
+                // use cartItem object to fill in a new orderDetail object
+                var orderDetail = new OrderDetail();
+                orderDetail.OrderId = order.Id;
+                orderDetail.ProductId = cartItem.ProductId;
+                orderDetail.Quantity = cartItem.Quantity;
+                orderDetail.Price = cartItem.Price;
+
+                // save orderDetail record in db
+                _context.OrderDetails.Add(orderDetail);
+                _context.SaveChanges();
+
+                // remove the cart
+                _context.Carts.Remove(cartItem);
+                _context.SaveChanges();
+            }
+
+            // redirect to order details view
+            // /Orders/Details/@id
+            return RedirectToAction("Details", "Orders", new { @id = order.Id });
         }
 
     }
