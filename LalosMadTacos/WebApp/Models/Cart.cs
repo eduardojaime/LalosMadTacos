@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace WebApp.Models
 {
+    // Contracts
+    // Cart = Line Item in the shoppingcart
     public class Cart
     {
         public int Id { get; set; }
