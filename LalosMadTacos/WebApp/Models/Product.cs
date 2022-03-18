@@ -1,4 +1,5 @@
 ﻿// Use annotiations to handle: validations, formats, display labels (used in views)
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace WebApp.Models

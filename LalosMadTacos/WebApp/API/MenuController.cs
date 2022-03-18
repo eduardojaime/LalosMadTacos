@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using WebApp.Data;
 using System.Linq;
 using WebApp.Models;
+using System;
 
 namespace WebApp.API
 {
@@ -77,17 +78,52 @@ namespace WebApp.API
         // UPDATE > PUT
         // PUT /api/Menu/1
         [HttpPut("{id}")]
-        public IActionResult PutMenuItem()
+        // Instead of passing every field of product as an individual parameter (as in POST)
+        // we'll pass a Product object
+        // product is coming in as a JSON object in the request body
+        public IActionResult PutMenuItem(int id, Product product)
         {
-            return new JsonResult("Not implemented");
+            // verify that id exists and is same as product
+            if (id != product.Id)
+            {
+                return BadRequest();
+            }
+            // modify EntityState of product
+            _context.Entry(product).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+            // save changes
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+            // return No Content (success)
+            return NoContent();
         }
 
         // DELETE > DELETE
         // DELETE /api/Menu/2
         [HttpDelete("{id}")]
-        public IActionResult DeleteMenuItem()
+        public IActionResult DeleteMenuItem(int id)
         {
-            return new JsonResult("Not implemented");
+            // find product to delete
+            var product = _context.Products.Find(id);
+
+            // remove from collection
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            _context.Products.Remove(product);
+
+            // save changes
+            _context.SaveChanges();
+
+            // return NoContent
+            return NoContent();
         }
 
         // Orders by day report
